@@ -34,6 +34,10 @@ type
     prefix: string
     saltLen: int
 
+template hygienic(body: untyped) =
+  when not defined(noScrub):
+    body
+
 func strcspn(left: string, right: string): int =
   var loc = 0
   for x in left:
@@ -235,6 +239,11 @@ func md5Crypt(md5Ctx: var MD5Context, key: string, salt: string): string =
     md5Final(md5Ctx, altDigest)
 
   var buffer = md5Ctx.compute(altDigest)
+  hygienic:
+    md5Init(md5Ctx)
+    md5Final(md5Ctx, altDigest)
+    md5Init(altCtx)
+    zeroMem(addr(digestBuffer[0]), len(digestBuffer))
   &"{USE_MD5}{realSalt}${buffer}"
 
 func shaCrypt[T=Sha2Context](shaCtx: var T, pass: string, salt: string): string =
@@ -327,6 +336,14 @@ func shaCrypt[T=Sha2Context](shaCtx: var T, pass: string, salt: string): string 
   var roundsSpecification = ""
   if rounds != DEFAULT_ROUNDS or config.rounds.explicit:
     roundsSpecification = &"{ROUNDS_PREFIX}{rounds}$"
+
+  hygienic:
+    init(shaCtx)
+    altDigest = finish(shaCtx)
+    init(altCtx)
+    tempResult = finish(altCtx)
+    zeroMem(addr(pBytes[0]), len(pBytes))
+    zeroMem(addr(sBytes[0]), len(sBytes))
   &"{prefix}{roundsSpecification}{realSalt}${buffer}"
 
 func constantTimeEquals(left: string, right: string): bool =

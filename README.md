@@ -9,6 +9,8 @@ for the SHA hash implementations.
 The crypt SHA-256 and SHA-512 functionality follow Drepper's implementation as described under
 http://www.akkadia.org/drepper/SHA-crypt.txt
 
+By default, the encryption contexts and buffers are invalidated/zeroed out after each crypt() call.
+You can opt out of this hygiene by compiling with -d:noScrub
 
 ## Usage
 
