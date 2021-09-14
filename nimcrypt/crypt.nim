@@ -53,12 +53,14 @@ proc nonZeroRandomBytes(length: int): string =
       if randomBytes(addr(result[i]), 1) != 1:
         raise newException(Defect, "Failed to generate enough random bytes")
 
-proc makeSalt*(prefix: string = "$6$", rounds: int = 5000): string =
+proc makeSalt*(prefix: string = "$6$", rounds: int = 5000, saltLen = 8): string =
   ## Generates a random salt - the following prefixes are currently supported
   ##  - `$1$`: MD5
   ##  - `$5$`: SHA-256
   ##  - `$6$`: SHA-512
-  let saltLength = if prefix == USE_MD5: 6 else: 12
+  ##
+  ## Note: MAX_SALT_LENGTH is defined as 16 for compatibility with https://www.akkadia.org/drepper/SHA-crypt.txt
+  var saltLength = if saltLen <= MAX_SALT_LENGTH: saltLen: else: 8
   let bytes = nonZeroRandomBytes(saltLength)
 
   var roundSpecification = ""
