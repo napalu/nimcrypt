@@ -60,7 +60,7 @@ proc makeSalt*(prefix: string = "$6$", rounds: int = 5000, saltLen = 8): string 
   ##  - `$6$`: SHA-512
   ##
   ## Note: MAX_SALT_LENGTH is defined as 16 for compatibility with https://www.akkadia.org/drepper/SHA-crypt.txt
-  var saltLength = if saltLen <= MAX_SALT_LENGTH: saltLen: else: 8
+  var saltLength = if saltLen <= MAX_SALT_LENGTH: saltLen else: 8
   let bytes = nonZeroRandomBytes(saltLength)
 
   var roundSpecification = ""
