@@ -1,0 +1,7 @@
+### Nim template
+nimcache/
+nimblecache/
+docs/
+htmldocs/
+.idea/
+
