@@ -4,7 +4,8 @@
   copyright (c) 2021, Florent Heyworth
 
   A nim implementation of the Unix C library crypt function with support for
-  MD5, SHA-256 and SHA-512 algorithms. The library uses the [nimcrypt](https://github.com/cheatfate/nimcrypto) library for the hash
+  MD5, SHA-256 and SHA-512 algorithms. The library uses the [nimcrypt](https://github.com/cheatfate/nimcrypto) library
+  for the SHA hash family
 
   The SHA-256 and SHA-512 implementations follow Drepper's implementation
   as described under http://www.akkadia.org/drepper/SHA-crypt.txt
