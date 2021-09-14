@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.0.2"
+version       = "0.0.3"
 author        = "Florent Heyworth"
 description   = "Nim implementation of MD5, SHA-256 and SHA-512 Unix crypt"
 license       = "MIT"

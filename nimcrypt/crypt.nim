@@ -16,11 +16,11 @@ const USE_MD5* = "$1$"
 const USE_SHA256* = "$5$"
 const USE_SHA512* = "$6$"
 const DEFAULT_PREFIX* = USE_SHA512
+const MAX_SALT_LENGTH* = 16
 const DEFAULT_ROUNDS* = 5000
 const ROUNDS_PREFIX = "rounds="
 const MIN_ROUNDS = 1000
 const MAX_ROUNDS = 999999999
-const MAX_SALT_LENGTH = 16
 const B64_CHARS = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 type
@@ -53,14 +53,14 @@ proc nonZeroRandomBytes(length: int): string =
       if randomBytes(addr(result[i]), 1) != 1:
         raise newException(Defect, "Failed to generate enough random bytes")
 
-proc makeSalt*(prefix: string = "$6$", rounds: int = 5000, saltLen = 8): string =
+proc makeSalt*(prefix: string = "$6$", rounds: int = 5000, saltLen = 16): string =
   ## Generates a random salt - the following prefixes are currently supported
   ##  - `$1$`: MD5
   ##  - `$5$`: SHA-256
   ##  - `$6$`: SHA-512
   ##
   ## Note: MAX_SALT_LENGTH is defined as 16 for compatibility with https://www.akkadia.org/drepper/SHA-crypt.txt
-  var saltLength = if saltLen <= MAX_SALT_LENGTH: saltLen else: 8
+  var saltLength = if saltLen <= MAX_SALT_LENGTH: saltLen else: MAX_SALT_LENGTH
   let bytes = nonZeroRandomBytes(saltLength)
 
   var roundSpecification = ""
