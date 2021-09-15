@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.0.4"
+version       = "0.0.5"
 author        = "Florent Heyworth"
 description   = "Nim implementation of MD5, SHA-256 and SHA-512 Unix crypt"
 license       = "MIT"
@@ -22,4 +22,4 @@ task test, "Runs the test suite":
   for test in testBase:
     echo "\n" & test & "testcrypt"
     exec test & "testcrypt"
-    rmFile("tests/testunixcrypt".toExe())
+    rmFile("tests/testcrypt".toExe())
