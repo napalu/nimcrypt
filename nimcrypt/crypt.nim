@@ -243,6 +243,7 @@ func md5Crypt(md5Ctx: var MD5Context, key: string, salt: string): string =
     md5Init(md5Ctx)
     md5Final(md5Ctx, altDigest)
     md5Init(altCtx)
+    md5Final(md5Ctx, altDigest)
     zeroMem(addr(digestBuffer[0]), len(digestBuffer))
   &"{USE_MD5}{realSalt}${buffer}"
 
