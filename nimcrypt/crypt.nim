@@ -1,4 +1,4 @@
-## Unix crypt implementation following Dreller's description at http://www.akkadia.org/drepper/SHA-crypt.txt
+## Unix crypt implementation following Drepper's description at http://www.akkadia.org/drepper/SHA-crypt.txt
 
 #[
   copyright (c) 2021, Florent Heyworth
