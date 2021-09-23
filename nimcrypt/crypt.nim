@@ -24,6 +24,18 @@ const MIN_ROUNDS = 1000
 const MAX_ROUNDS = 999999999
 const B64_CHARS = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
+template copyMemSafe(dest: pointer, source: pointer, length: int) =
+  if length > 0:
+    copyMem(dest, source, length)
+
+template zeroMemSafe(dest: pointer, length: int) =
+  if length > 0:
+    zeroMem(dest, length)
+
+template updateSafe(shaCtx: Sha2Context, source: pointer, length: uint) =
+  if length > 0:
+    update(shaCtx, source, length)
+
 type
   CryptRound = object
     num: int
@@ -264,14 +276,11 @@ func shaCrypt[T = Sha2Context](shaCtx: var T, pass: string, salt: string): strin
   init(shaCtx)
   init(altCtx)
 
-  if keyLen > 0:
-    update(shaCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
+  updateSafe(shaCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
   update(shaCtx, cast[ptr uint8](addr(realSalt[0])), uint(saltLen))
-  if keyLen > 0:
-    update(altCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
+  updateSafe(altCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
   update(altCtx, cast[ptr uint8](addr(realSalt[0])), uint(saltLen))
-  if keyLen > 0:
-    update(altCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
+  updateSafe(altCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
   var altDigest = finish(altCtx)
 
   var counter = keyLen
@@ -301,8 +310,7 @@ func shaCrypt[T = Sha2Context](shaCtx: var T, pass: string, salt: string): strin
     copyMem(addr(pBytes[offset - 1]), addr(tempResult.data[0]), sizeDigest)
     counter -= sizeInc
     offset += sizeInc
-  if counter > 0:
-    copyMem(addr(pBytes[offset - 1]), addr(tempResult.data[0]), counter)
+  copyMemSafe(addr(pBytes[offset - 1]), addr(tempResult.data[0]), counter)
 
   init(altCtx)
   var upTo = 16 + cint(altDigest.data[0])
@@ -324,18 +332,17 @@ func shaCrypt[T = Sha2Context](shaCtx: var T, pass: string, salt: string): strin
   for i in countup(0, rounds - 1):
     init(shaCtx)
     if (i and 1) != 0:
-      if keyLen > 0:
-        update(shaCtx, addr(pBytes[0]), uint(keyLen))
+      updateSafe(shaCtx, addr(pBytes[0]), uint(keyLen))
     else:
       update(shaCtx, addr(altDigest.data[0]), sizeDigest)
     if (i mod 3) != 0:
       update(shaCtx, addr(sBytes[0]), uint(saltLen))
-    if keyLen > 0 and (i mod 7) != 0:
-      update(shaCtx, addr(pBytes[0]), uint(keyLen))
+    if (i mod 7) != 0:
+      updateSafe(shaCtx, addr(pBytes[0]), uint(keyLen))
     if (i and 1) != 0:
       update(shaCtx, addr(altDigest.data[0]), sizeDigest)
-    elif keyLen > 0:
-      update(shaCtx, addr(pBytes[0]), uint(keyLen))
+    else:
+      updateSafe(shaCtx, addr(pBytes[0]), uint(keyLen))
     altDigest = finish(shaCtx)
 
   var buffer = shaCtx.compute(altDigest)
@@ -348,8 +355,7 @@ func shaCrypt[T = Sha2Context](shaCtx: var T, pass: string, salt: string): strin
     altDigest = finish(shaCtx)
     init(altCtx)
     tempResult = finish(altCtx)
-    if keyLen > 0:
-      zeroMem(addr(pBytes[0]), len(pBytes))
+    zeroMemSafe(addr(pBytes[0]), len(pBytes))
     zeroMem(addr(sBytes[0]), len(sBytes))
   &"{prefix}{roundsSpecification}{realSalt}${buffer}"
 
