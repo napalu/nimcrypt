@@ -264,11 +264,14 @@ func shaCrypt[T=Sha2Context](shaCtx: var T, pass: string, salt: string): string 
   init(shaCtx)
   init(altCtx)
 
-  update(shaCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
+  if keyLen > 0:
+    update(shaCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
   update(shaCtx, cast[ptr uint8](addr(realSalt[0])), uint(saltLen))
-  update(altCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
+  if keyLen > 0:
+    update(altCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
   update(altCtx, cast[ptr uint8](addr(realSalt[0])), uint(saltLen))
-  update(altCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
+  if keyLen > 0:
+    update(altCtx, cast[ptr uint8](addr(key[0])), uint(keyLen))
   var altDigest = finish(altCtx)
 
   var counter = keyLen
@@ -298,7 +301,8 @@ func shaCrypt[T=Sha2Context](shaCtx: var T, pass: string, salt: string): string 
     copyMem(addr(pBytes[offset - 1]), addr(tempResult.data[0]), sizeDigest)
     counter -= sizeInc
     offset += sizeInc
-  copyMem(addr(pBytes[offset - 1]), addr(tempResult.data[0]), counter)
+  if counter > 0:
+    copyMem(addr(pBytes[offset - 1]), addr(tempResult.data[0]), counter)
 
   init(altCtx)
   var upTo = 16 + cint(altDigest.data[0])
@@ -320,17 +324,18 @@ func shaCrypt[T=Sha2Context](shaCtx: var T, pass: string, salt: string): string 
   for i in countup(0, rounds - 1):
     init(shaCtx)
     if (i and 1) != 0:
-      update(shaCtx,  addr(pBytes[0]), uint(keyLen))
+      if keyLen > 0:
+        update(shaCtx,  addr(pBytes[0]), uint(keyLen))
     else:
       update(shaCtx, addr(altDigest.data[0]), sizeDigest)
     if (i mod 3) != 0:
       update(shaCtx, addr(sBytes[0]), uint(saltLen))
-    if (i mod 7) != 0:
+    if keyLen > 0 and (i mod 7) != 0:
       update(shaCtx, addr(pBytes[0]), uint(keyLen))
     if (i and 1) != 0:
       update(shaCtx, addr(altDigest.data[0]), sizeDigest)
-    else:
-      update(shaCtx, addr(pBytes[0]), uint(keyLen))
+    elif keyLen > 0:
+        update(shaCtx, addr(pBytes[0]), uint(keyLen))
     altDigest = finish(shaCtx)
 
   var buffer = shaCtx.compute(altDigest)
@@ -343,7 +348,8 @@ func shaCrypt[T=Sha2Context](shaCtx: var T, pass: string, salt: string): string 
     altDigest = finish(shaCtx)
     init(altCtx)
     tempResult = finish(altCtx)
-    zeroMem(addr(pBytes[0]), len(pBytes))
+    if keyLen > 0:
+      zeroMem(addr(pBytes[0]), len(pBytes))
     zeroMem(addr(sBytes[0]), len(sBytes))
   &"{prefix}{roundsSpecification}{realSalt}${buffer}"
 
