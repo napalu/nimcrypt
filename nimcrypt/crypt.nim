@@ -123,7 +123,7 @@ func parseSalt(salt: string): SaltConfig =
   let maxSaltLen = if prefix == USE_MD5: 8 else: MAX_SALT_LENGTH
   let saltLen = min(strcspn(realSalt, "$"), maxSaltLen)
   if saltLen < realSalt.len:
-      realSalt = realSalt.substr(0, saltLen - 1)
+    realSalt = realSalt.substr(0, saltLen - 1)
 
   result.rounds = CryptRound(num: rounds, explicit: rPos != -1)
   result.salt = realSalt
@@ -247,7 +247,7 @@ func md5Crypt(md5Ctx: var MD5Context, key: string, salt: string): string =
     zeroMem(addr(digestBuffer[0]), len(digestBuffer))
   &"{USE_MD5}{realSalt}${buffer}"
 
-func shaCrypt[T=Sha2Context](shaCtx: var T, pass: string, salt: string): string =
+func shaCrypt[T = Sha2Context](shaCtx: var T, pass: string, salt: string): string =
   let
     keyLen = len(pass)
     config = parseSalt(salt)
@@ -325,7 +325,7 @@ func shaCrypt[T=Sha2Context](shaCtx: var T, pass: string, salt: string): string 
     init(shaCtx)
     if (i and 1) != 0:
       if keyLen > 0:
-        update(shaCtx,  addr(pBytes[0]), uint(keyLen))
+        update(shaCtx, addr(pBytes[0]), uint(keyLen))
     else:
       update(shaCtx, addr(altDigest.data[0]), sizeDigest)
     if (i mod 3) != 0:
@@ -335,7 +335,7 @@ func shaCrypt[T=Sha2Context](shaCtx: var T, pass: string, salt: string): string 
     if (i and 1) != 0:
       update(shaCtx, addr(altDigest.data[0]), sizeDigest)
     elif keyLen > 0:
-        update(shaCtx, addr(pBytes[0]), uint(keyLen))
+      update(shaCtx, addr(pBytes[0]), uint(keyLen))
     altDigest = finish(shaCtx)
 
   var buffer = shaCtx.compute(altDigest)
