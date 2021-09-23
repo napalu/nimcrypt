@@ -152,3 +152,10 @@ suite "Unix crypt tests":
       verify(sha512Hello[2], sha512Hello[1])
       verify(sha512RoundsTooLow[2], sha512RoundsTooLow[1])
       verify(sha512RoundsTooLow[0], sha512RoundsTooLow[1]) == verify("$6$rounds=1000$roundstoolow", sha512RoundsTooLow[1])
+
+  test "empty key tests":
+    check:
+      crypt("", "$1$mysalt") == "$1$mysalt$VI9bXrMhLdRvj1lW3XeMd/"
+      crypt("", "$5$mysalt") == "$5$mysalt$1oP8B0c57jHzUxkCxGmWe3Pa281YT8/JA1G6pVdmik9"
+      crypt("", "$6$mysalt") == "$6$mysalt$v3eaavcIGeUkyeFtuTOVU1.0uOICRFVGOs5GaK/zQ43wIXPoSk855IwjRzntmCogV6gNtUAlIktC23eIKt21c0"
+
