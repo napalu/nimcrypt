@@ -24,18 +24,6 @@ const MIN_ROUNDS = 1000
 const MAX_ROUNDS = 999999999
 const B64_CHARS = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
-template copyMemSafe(dest: pointer, source: pointer, length: int) =
-  if length > 0:
-    copyMem(dest, source, length)
-
-template zeroMemSafe(dest: pointer, length: int) =
-  if length > 0:
-    zeroMem(dest, length)
-
-template updateSafe(shaCtx: Sha2Context, source: pointer, length: uint) =
-  if length > 0:
-    update(shaCtx, source, length)
-
 type
   CryptRound = object
     num: int
@@ -49,6 +37,18 @@ type
 template hygienic(body: untyped) =
   when not defined(noScrub):
     body
+
+template copyMemSafe(dest: pointer, source: pointer, length: int) =
+  if length > 0:
+    copyMem(dest, source, length)
+
+template zeroMemSafe(dest: pointer, length: int) =
+  if length > 0:
+    zeroMem(dest, length)
+
+template updateSafe(shaCtx: Sha2Context, source: pointer, length: uint) =
+  if length > 0:
+    update(shaCtx, source, length)
 
 func strcspn(left: string, right: string): int =
   var loc = 0
@@ -85,10 +85,10 @@ proc makeSalt*(prefix: string = "$6$", rounds: int = 5000, saltLen = 16): string
     roundSpecification = &"{ROUNDS_PREFIX}{rounds}$"
   &"{prefix}{roundSpecification}{encode(bytes)}"
 
-func copyTo(bytes: openArray[byte|uint8], buffer: var string) =
+func copyTo(bytes: openArray[uint8], buffer: var cstring) =
   let length = bytes.len
   if length > 0:
-    copyMem(buffer.cstring, bytes[0].unsafeAddr, length)
+    copyMem(buffer, bytes[0].unsafeAddr, length)
 
 func b64(b2: uint, b1: uint, b0: uint, length: int, buffer: var string, pos: var int) =
   var entry = (b2 shl 16) or (b1 shl 8) or b0
@@ -204,8 +204,8 @@ func md5Crypt(md5Ctx: var MD5Context, key: string, salt: string): string =
   var
     altDigest: MD5Digest
     altCtx: MD5Context
-    digestBuffer = newString(sizeof MD5Digest)
-    realSalt = config.salt
+    realSalt = cstring(config.salt)
+    digestBuffer = cstring(newString(sizeof MD5_Digest))
 
   md5Init(md5Ctx)
   md5Init(altCtx)

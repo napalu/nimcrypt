@@ -1,5 +1,4 @@
-import nimcrypt/[crypt]
-import std/unittest, std/times
+import nimcrypt/[crypt], std/unittest
 
 suite "Unix crypt tests":
   const
