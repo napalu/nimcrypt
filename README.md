@@ -87,13 +87,13 @@ echo verify(hash, pass)
 # example-with-random-salts.nim
 
 # crypt with random SHA-512 salt
-echo crypt(pass, makeSalt("$6"))
+echo crypt(pass, makeSalt("$6$"))
 # crypt with random SHA-512 salt with custom rounds 
-echo crypt(pass, makeSalt("$6", 10000))
+echo crypt(pass, makeSalt("$6$", 10000))
 # crypt with random SHA-256 salt
-echo crypt(pass, makeSalt("$5"))
+echo crypt(pass, makeSalt("$5$"))
 # crypt with random SHA-256 salt with custom rounds 
-echo crypt(pass, makeSalt("$5", 10000))
+echo crypt(pass, makeSalt("$5$", 10000))
 # crypt with random MD5 salt (custom rounds are ignored)
-echo crypt(pass, makeSalt("$1"))
+echo crypt(pass, makeSalt("$1$"))
 ```
