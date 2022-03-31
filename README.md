@@ -1,4 +1,6 @@
 # nimcrypt
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnapalu%2Fnimcrypt.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fnapalu%2Fnimcrypt?ref=badge_shield)
+
 
 # Unix crypt implementation
 
@@ -97,3 +99,7 @@ echo crypt(pass, makeSalt("$5$", 10000))
 # crypt with random MD5 salt (custom rounds are ignored)
 echo crypt(pass, makeSalt("$1$"))
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnapalu%2Fnimcrypt.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fnapalu%2Fnimcrypt?ref=badge_large)
