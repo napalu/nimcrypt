@@ -1,14 +1,11 @@
 ## Unix crypt implementation following Drepper's description at http://www.akkadia.org/drepper/SHA-crypt.txt
 
 #[
-  copyright (c) 2021, Florent Heyworth
+  copyright (c) 2021,2022 Florent Heyworth
 
   A nim implementation of the Unix C library crypt function with support for
   MD5, SHA-256 and SHA-512 algorithms. The library uses the [nimcrypt](https://github.com/cheatfate/nimcrypto) library
   for the SHA hash family
-
-  The SHA-256 and SHA-512 implementations follow Drepper's implementation
-  as described under http://www.akkadia.org/drepper/SHA-crypt.txt
 ]#
 
 import std/base64, std/strformat, std/strutils, std/md5, std/bitops, nimcrypto
@@ -92,11 +89,7 @@ func copyTo(bytes: openArray[uint8], buffer: var cstring) =
 
 func b64(b2: uint, b1: uint, b0: uint, length: int, buffer: var string, pos: var int) =
   var entry = (b2 shl 16) or (b1 shl 8) or b0
-  var vLen = length
-  while true:
-    if vLen <= 0:
-      break
-    vLen -= 1
+  for _ in countdown(length, 1):
     buffer[pos] = B64_CHARS[(entry and 0x3f)]
     pos += 1
     entry = entry shr 6
@@ -205,7 +198,7 @@ func md5Crypt(md5Ctx: var MD5Context, key: string, salt: string): string =
     altDigest: MD5Digest
     altCtx: MD5Context
     realSalt = cstring(config.salt)
-    digestBuffer = cstring(newString(sizeof MD5_Digest))
+    digestBuffer = cstring(newString(sizeof MD5Digest))
 
   md5Init(md5Ctx)
   md5Init(altCtx)

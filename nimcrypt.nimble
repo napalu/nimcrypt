@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.0.8"
+version       = "0.0.9"
 author        = "Florent Heyworth"
 description   = "Nim implementation of MD5, SHA-256 and SHA-512 Unix crypt"
 license       = "MIT"
@@ -9,7 +9,6 @@ skipDirs      = @["tests", "docs"]
 
 
 # Dependencies
-
 requires "nim >= 1.2.0", "nimcrypto >= 0.5.4"
 
 # Tests
