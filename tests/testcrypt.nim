@@ -1,4 +1,4 @@
-import nimcrypt/[crypt], std/unittest
+import ../nimcrypt/[crypt], std/unittest
 
 suite "Unix crypt tests":
   const
