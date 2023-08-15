@@ -1,14 +1,18 @@
 ## Unix crypt implementation following Drepper's description at http://www.akkadia.org/drepper/SHA-crypt.txt
 
 #[
-  copyright (c) 2021,2022 Florent Heyworth
+  copyright (c) 2021-2023 Florent Heyworth
 
   A nim implementation of the Unix C library crypt function with support for
-  MD5, SHA-256 and SHA-512 algorithms. The library uses the [nimcrypt](https://github.com/cheatfate/nimcrypto) library
-  for the SHA hash family
+  MD5, SHA-256, SHA-512, Blowfish (bcrypt) algorithms. The library uses the [nimcrypt](https://github.com/cheatfate/nimcrypto) library
+  for the SHA and Blowfish hash family
 ]#
 
-import std/base64, std/strformat, std/strutils, std/md5, std/bitops, nimcrypto
+import std/base64, std/strformat, std/strutils, std/bitops, nimcrypto
+when (NimMajor, NimMinor, NimPatch) >= (1, 6, 12):
+  import checksums/md5
+else:
+  import std/md5
 
 const USE_MD5* = "$1$"
 const USE_SHA256* = "$5$"
@@ -189,7 +193,7 @@ func compute(ctx: sha512, altDigest: MDigest): string =
   b64(0, 0, altDigest.data[63], 2, buffer, pos)
   buffer
 
-func md5Crypt(md5Ctx: var MD5Context, key: string, salt: string): string =
+proc md5Crypt(md5Ctx: var MD5Context, key: string, salt: string): string =
   let
     keyLen = len(key)
     config = parseSalt(salt)
@@ -366,9 +370,9 @@ func hashPart(hash: string): string =
     return hash.substr(pos + 1)
   hash
 
-func crypt*(password: string, salt: string): string =
+proc crypt*(password: string, salt: string): string =
   ## The salt is composed of three parts:
-  ##  - part 1: dollar-terminated algorithm - currently `$1$` (MD5), `$5$` (SHA256) and `$6$` (SHA512) are supported
+  ##  - part 1: dollar-terminated algorithm - currently `$1$` (MD5), `$5$` (SHA-256),`$6$` (SHA-512) are supported
   ##  - part 2: optional dollar-terminated rounds specification `rounds=<number>`. Not used in MD5, defaults to 5000 for SHA hashes
   ##  - part 3: actual salt
   ## Example:
@@ -387,7 +391,7 @@ func crypt*(password: string, salt: string): string =
 
   raise newException(Defect, "Unsupported algorithm")
 
-func verify*(hash: string, password: string): bool =
+proc verify*(hash: string, password: string): bool =
   ## Returns true if password produces an identical hash
   let config = parseSalt(hash)
   let rounds = if config.rounds.explicit: &"{ROUNDS_PREFIX}{config.rounds.num}$" else: ""
